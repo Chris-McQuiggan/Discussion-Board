@@ -2,8 +2,6 @@ const express = require("express");
 const router = express.Router();
 const Item = require("../models/items");
 
-let array = [];
-
 // @route   GET item/test
 // @desc    Tests route
 // @access  Public
