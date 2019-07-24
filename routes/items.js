@@ -50,16 +50,13 @@ router.post("/createItem", (req, res) => {
 // @desc    Update first item
 // @access  Public
 router.put("/updateItem", (req, res) => {
-
-  const newItem = {
-    username: req.body.username,
-    content: req.body.content
-  };
-
-  array[0] = newItem;
-
-  res.send("First item updated");
-
+  
+  Item.updateOne(
+    {'username': req.body.username},
+    {$set : {'content': req.body.content}} 
+  )
+  .then(() => res.status(200).send("Item Updated"))
+  .catch(err => res.status(404).json({noItems: "No Items Exist"}));
 });
 
 // @route   DELETE item/deleteItem
