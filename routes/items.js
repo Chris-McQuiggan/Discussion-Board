@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const Item = require("../models/items");
+const Validator = require("../utils/validator");
+const bcrypt = require("bcrypt");
 
 // @route   GET item/test
 // @desc    Tests route
@@ -17,7 +19,7 @@ router.get("/test", (req, res) => {
 
 router.get("/all", (req, res) => {
   const errors = {};
-  Item.find()
+  Item.find({}, '-email')
     .then(items => {
       if (!items) {
         errors.noItems = "There are no items";
@@ -33,28 +35,49 @@ router.get("/all", (req, res) => {
 // @access  Public
 router.post("/createItem", (req, res) => {
 
-  const newItem = new Item ({
-    username: req.body.username,
-    content: req.body.content
-  });
+  let val = Validator(req.body);
 
-  newItem.save()
-        .then(() => res.status(200).send("Item Added"))
-        .catch(err => res.status(404).json({noItems: "No Items Exist"}));
+  if (val.isValid) {
 
+    const newItem = new Item({
+      username: req.body.username,
+      email: req.body.email,
+      content: req.body.content
+    });
+
+    bcrypt.hash(req.body.email, 15)
+      .then((hash) => {
+        newItem.email = hash
+        newItem.save()
+        res.status(200).send("Added New Item")
+      })
+      .catch(err => res.status(555).json({ "Fault": `${err}` }))
+
+    // newItem.save()
+    //   .then(() => res.status(200).send("Item Added"))
+    //   .catch(err => res.status(404).json({ Items: "Item not added" }));
+
+  } else {
+    res.status(404).send(val.errors);
+  }
 });
 
 // @route   PUT item/updateItem
 // @desc    Update first item
 // @access  Public
 router.put("/updateItem", (req, res) => {
-  
-  Item.updateOne(
-    {'username': req.body.username},
-    {$set : {'content': req.body.content}} 
-  )
-  .then(() => res.status(200).send("Item Updated"))
-  .catch(err => res.status(404).json({noItems: "No Items Exist"}));
+
+  let val = Validator(req.body);
+
+  if (val.isValid) {
+
+    Item.updateOne(
+      { 'username': req.body.username },
+      { $set: { 'content': req.body.content } }
+    )
+      .then(() => res.status(200).send("Item Updated"))
+      .catch(err => res.status(404).json({ noItems: "No Items Exist" }));
+  }
 });
 
 // @route   DELETE item/deleteItem
@@ -62,9 +85,18 @@ router.put("/updateItem", (req, res) => {
 // @access  Public
 router.delete("/deleteItem", (req, res) => {
 
-  Item.deleteOne({'username': req.body.username})
-        .then(() => res.status(200).send("Item Deleted"))
-        .catch(err => res.status(404).json({noItems: "No Items Exist"}));
+  Item.deleteOne({ 'username': req.body.username })
+    .then((ok) => {
+      console.log(ok);
+      console.log(ok.n);
+      if (ok.n == 0) {
+        res.status(200).send("Item not Deleted")
+      }
+      else { res.status(200).send("Item Deleted") }
+    })
+    .catch(err => res.status(404).json({ noItems: "No Items Exist" }));
+  // res.status(200).send("Item Deleted"))
+  // .catch(err => res.status(404).json({ noItems: "No Items Exist" }));
 });
 
 module.exports = router;

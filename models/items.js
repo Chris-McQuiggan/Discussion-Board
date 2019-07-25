@@ -8,6 +8,10 @@ let itemSchema = new Schema({
         required: true,
         minlength: 3
     },
+    email: {
+        type: String,
+        required: true,
+    },
     content: {
         type: String,
         required: true,
