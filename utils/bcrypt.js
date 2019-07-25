@@ -1,41 +1,41 @@
 const bcrypt = require("bcrypt");
 
-module.export = function hashInput(data) {
-    bcrypt.hash(data, 15)
-        .then((hash) => {
-            addItem.email = hash
-            addItem.save()
-            res.status(200).send("Added New Item")
-        })
-        .catch(err => res.status(555).json({ "Fault": `${err}` }))
+
+//     bcrypt.hash(data, 15)
+//         .then((hash) => {
+//             addItem.email = hash
+//             addItem.save()
+//             res.status(200).send("Added New Item")
+//         })
+//         .catch(err => res.status(555).json({ "Fault": `${err}` }))
 
 
 
-// module.exports = function hashInput(data) {
+module.exports = function hashInput(data) {
 
-//     const createPromise = new Promise(
-//         function (resolve, reject) {
-//             let payload = {};
-//             bcrypt.genSalt(10, (err, salt) => {
-//                 bcrypt.hash(data, salt, (err, hash) => {
-//                     if (err) throw err;
-//                     payload = hash;
-//                     // console.log(payload);
-//                 });
-//             });
-//             if (payload != {}) {
-//                 resolve(payload);
-//             }
-//             else {
-//                 reject(Error("It broke"));
-//             }
-//         }
-//     );
-//     return createPromise
-//     .then(result => console.log(result))
-//     .catch(error => error) 
-//     // return output
-// }
+    const createPromise = new Promise(
+        function (resolve, reject) {
+            let payload = {};
+            bcrypt.genSalt(10, (err, salt) => {
+                bcrypt.hash(data, salt, (err, hash) => {
+                    if (err) throw err;
+                    payload = hash;
+                    // console.log(payload);
+                });
+            });
+            if (payload != {}) {
+                resolve(payload);
+            }
+            else {
+                reject(Error("It broke"));
+            }
+        }
+    );
+    createPromise
+    .then(result => {return result})
+    .catch(error => error) 
+    // return output
+}
 
 
 

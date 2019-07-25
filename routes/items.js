@@ -3,6 +3,7 @@ const router = express.Router();
 const Item = require("../models/items");
 const Validator = require("../utils/validator");
 const bcrypt = require("bcrypt");
+const mybcrypt = require("../utils/bcrypt");
 
 // @route   GET item/test
 // @desc    Tests route
@@ -62,6 +63,32 @@ router.post("/createItem", (req, res) => {
   }
 });
 
+
+router.post("/createItem2", (req, res) => {
+
+  let val = Validator(req.body);
+
+  if (val.isValid) {
+
+    const newItem = new Item({
+      username: req.body.username,
+      email: req.body.email,
+      content: req.body.content
+    });
+
+    let email = mybcrypt(req.body.email);
+    console.log(mybcrypt(req.body.email))
+    console.log(newItem);
+    res.send("hmm")
+    // newItem.save()
+    //   .then(() => res.status(200).send("Item Added"))
+    //   .catch(err => res.status(404).json({ Items: "Item not added" }));
+
+  } else {
+    res.status(404).send(val.errors);
+  }
+});
+
 // @route   PUT item/updateItem
 // @desc    Update first item
 // @access  Public
@@ -84,19 +111,28 @@ router.put("/updateItem", (req, res) => {
 // @desc    Delete first item
 // @access  Public
 router.delete("/deleteItem", (req, res) => {
-
-  Item.deleteOne({ 'username': req.body.username })
-    .then((ok) => {
-      console.log(ok);
-      console.log(ok.n);
-      if (ok.n == 0) {
-        res.status(200).send("Item not Deleted")
-      }
-      else { res.status(200).send("Item Deleted") }
-    })
-    .catch(err => res.status(404).json({ noItems: "No Items Exist" }));
-  // res.status(200).send("Item Deleted"))
-  // .catch(err => res.status(404).json({ noItems: "No Items Exist" }));
+  Item.findOne()
+    .then((item) => {
+      console.log(item.email);
+      console.log(req.body.email);
+      bcrypt.compare(req.body.email, item.email).then(res => {
+        if (res) {
+          Item.deleteOne({ 'username': req.body.username })
+            .then((ok) => {
+              console.log(ok);
+              if (ok.n == 0) {
+                res.status(200).send("Item not Deleted")
+              }
+              else { res.status(200).send("Item Deleted") }
+            })
+            .catch(err => res.status(404).json({ noItems: "No Items Exist" }));
+        } else {
+          res.send("Incorrect Email")
+        }
+      }).catch(err => res.status(404).send("Incorrect Email Address"));
+      // res.status(200).send("Item Deleted"))
+      // .catch(err => res.status(404).json({ noItems: "No Items Exist" }));
+    });
 });
 
 module.exports = router;
