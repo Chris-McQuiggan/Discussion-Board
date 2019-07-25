@@ -111,27 +111,29 @@ router.put("/updateItem", (req, res) => {
 // @desc    Delete first item
 // @access  Public
 router.delete("/deleteItem", (req, res) => {
-  Item.findOne()
+  Item.findOne({"username": req.body.username})
     .then((item) => {
-      console.log(item.email);
-      console.log(req.body.email);
-      bcrypt.compare(req.body.email, item.email).then(res => {
-        if (res) {
-          Item.deleteOne({ 'username': req.body.username })
+
+      bcrypt.compare(req.body.email, item.email).then(ifMatch => {
+        if (ifMatch) {
+
+          Item.deleteOne({ username: req.body.username })
             .then((ok) => {
               console.log(ok);
               if (ok.n == 0) {
                 res.status(200).send("Item not Deleted")
-              }
-              else { res.status(200).send("Item Deleted") }
-            })
-            .catch(err => res.status(404).json({ noItems: "No Items Exist" }));
-        } else {
+              }else { res.status(200).send("Item Deleted") }
+            }).catch(err => res.status(404).json({ noItems: "No Items Exist" }));
+        } 
+        else {
           res.send("Incorrect Email")
         }
-      }).catch(err => res.status(404).send("Incorrect Email Address"));
+      })
+      .catch(err => res.status(404).send("Incorrect User Name"));
+
       // res.status(200).send("Item Deleted"))
       // .catch(err => res.status(404).json({ noItems: "No Items Exist" }));
+
     });
 });
 
