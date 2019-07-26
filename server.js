@@ -6,7 +6,7 @@ const items = require("./routes/items");
 
 const app = express();
 
-let uri = 'mongodb://localhost:27017/account';
+let uri = 'mongodb://localhost:27017/items';
 let opts = { useNewUrlParser: true };
 
 // Body parser middleware

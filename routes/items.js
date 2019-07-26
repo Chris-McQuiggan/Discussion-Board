@@ -116,7 +116,7 @@ router.put("/updateItem", (req, res) => {
         }
       })
         .catch(err => res.status(404).send("Incorrect User Name"));
-    });
+    }).catch(err => res.status(404).send("Incorrect User Name"));
 
     // Item.updateOne(
     //   { 'username': req.body.username },
@@ -141,20 +141,20 @@ router.delete("/deleteItem", (req, res) => {
             .then((ok) => {
               console.log(ok);
               if (ok.n == 0) {
-                res.status(200).send("Item not Deleted")
+                res.status(404).send("Item not Deleted")
               } else { res.status(200).send("Item Deleted") }
             }).catch(err => res.status(404).json({ noItems: "No Items Exist" }));
         }
         else {
-          res.send("Incorrect Email")
+          res.status(404).send("Incorrect Email")
         }
       })
-        .catch(err => res.status(404).send("Incorrect User Name"));
+        .catch(err => res.status(404).send("Can't check email"));
 
       // res.status(200).send("Item Deleted"))
       // .catch(err => res.status(404).json({ noItems: "No Items Exist" }));
 
-    });
+    }).catch(err => res.status(404).send("Incorrect User Name"));
 });
 
 module.exports = router;
